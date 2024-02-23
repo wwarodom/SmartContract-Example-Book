@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.7.6;
 
 contract ReceiveEther { 
     event log(string  mesg, bytes data); 
@@ -19,7 +19,6 @@ contract ReceiveEther {
 
 contract SendEther { 
     function sendViaTransfer(address payable _to) public payable {
-        // This function is no longer recommended for sending Ether.
         _to.transfer(msg.value);
     }
 
