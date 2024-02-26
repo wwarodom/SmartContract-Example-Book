@@ -6,6 +6,7 @@ pragma solidity 0.8.20;
 // 1) use bytes32 for proposal names
 // Example names in bytes32 format:
 // eg., ["0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",     "0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"]
+// Storing data in bytes32 (fixed-size) uses less gas than string type
 // 2) voter can delegate own vote to another voter
 
 contract Ballot3 {
