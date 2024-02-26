@@ -14,8 +14,8 @@ contract Parent {
   }
 }
 contract Child is Parent {
-  // Parent p = new Parent();
-  Child p = new Child();  // cannot instantiate
+  Parent p = new Parent();
+  // Child p = new Child();  // cannot instantiate
 
   function bar() override  public {
       // foo();    // doesn't work with internal,internal work when override 
