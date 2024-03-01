@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 contract PayableExample {
    address payable owner;
   
-   constructor() { owner = payable(msg.sender); }
+   constructor() {    owner = payable(msg.sender); }
 
    function paymentToSmartContract() external payable {  }
   
@@ -16,7 +16,7 @@ contract PayableExample {
   
    function payment(address payable _to) payable external {
        // transfer Ether value from smart contract to _to
-       _to.transfer(msg.value);  
+       _to.transfer(address(this).balance);  
    }
   
    function ownerBalance() external view returns (uint) {
