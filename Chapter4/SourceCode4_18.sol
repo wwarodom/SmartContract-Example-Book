@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 contract PayableExample {
    address payable owner;
   
-   constructor() public {    owner = msg.sender; }
+   constructor() { owner = payable(msg.sender); }
 
    function paymentToSmartContract() external payable {  }
   
