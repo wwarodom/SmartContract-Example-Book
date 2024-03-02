@@ -1,27 +1,19 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity 0.8.20;
 
-contract EtherStore {
-
-    // withdrawal limit = 1 ether / week
-    uint constant public WITHDRAWAL_LIMIT = 1 ether;
-    mapping(address => uint) public lastWithdrawTime;
+contract EtherStore { 
     mapping(address => uint) public balances;
 
     function deposit() public payable {
         balances[msg.sender] += msg.value;
-    }
+    } 
 
-    function withdraw(uint _amount) public {
-        require(balances[msg.sender] >= _amount);
-        require(_amount <= WITHDRAWAL_LIMIT);
-        require(block.timestamp >= lastWithdrawTime[msg.sender] + 1 weeks);
-
-        (bool sent, ) = msg.sender.call{value: _amount}("");
+    function withdraw() public {
+        uint bal = balances[msg.sender];
+        require(bal > 0);
+        (bool sent, ) = msg.sender.call{value: bal}("");
         require(sent, "Failed to send Ether");
-        balances[msg.sender] -= amount;
-        lastWithdrawTime[msg.sender] = block.timestamp;
+        balances[msg.sender] = 0;
     }
 
     function getBalance() public view returns (uint) {
