@@ -1,19 +1,17 @@
-// This contract appears benign, but it contains hidden malicious code
-// to exploit the VulnerableContract.
-
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
 
-contract MaliciousContract {
-    address public attacker;
+pragma solidity 0.8.20; 
 
-    constructor() {
-        attacker = msg.sender;
-    }
+contract Malicious {
+    event Log(string message);       
 
-    function transfer(address to, uint256 amount) public {
-        require(msg.sender == attacker, "Unauthorized access!");
-        // Perform the legitimate transfer logic
-        // However, the attacker can manipulate this logic to exploit the VulnerableContract.
+    fallback () external { 
+        emit Log("log in Malicious was called in fallback");
+    } 
+
+    // if this function DOES NOT exist, fallback is called
+    function log() public  {  
+        emit Log("log in Malicious was called ");
+        // ...Attacker can put some commands he wants here...
     }
 }
