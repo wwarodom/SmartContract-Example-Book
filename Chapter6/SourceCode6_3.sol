@@ -1,13 +1,15 @@
-function withdraw(uint _amount) public {
-    require(balances[msg.sender] >= _amount);
-    require(_amount <= WITHDRAWAL_LIMIT);   // Checks
-    require(block.timestamp >= lastWithdrawTime[msg.sender] + 1 weeks);
+// … Modify EtherStore contract …
 
-    // Effects - Update state first
-    balances[msg.sender] -= _amount;
-    lastWithdrawTime[msg.sender] = block.timestamp;
+function withdraw() public {
+   uint bal = balances[msg.sender];
 
-    // Interactions - Perform external interactions after state updates
-    (bool sent, ) = msg.sender.call{value: _amount}("");
-    require(sent, "Failed to send Ether");
+   // Checks
+   require(bal > 0);               
+
+   // Effects - Update state first
+    balances[msg.sender] = 0;
+        
+   // Interactions - Perform external interactions after state updates
+   (bool sent, ) = msg.sender.call{value: bal}("");
+   require(sent, "Failed to send Ether"); 
 }
