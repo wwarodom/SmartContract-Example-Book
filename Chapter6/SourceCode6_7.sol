@@ -14,3 +14,6 @@ contract HashFinder {
         require(success, "Failed to send Ether");
     }
 }
+
+// Another example of frontrunner:
+// https://github.com/SainyTK/simple-frontrun-demo
