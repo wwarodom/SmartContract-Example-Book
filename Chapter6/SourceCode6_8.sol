@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+
+// A deploys SecuredHashFinder with 10 ETH
+// B runs attemptSolution() with "Werapun" to get _solution
+// B submits commit() with _solution (msg.sender & "Werapun")
+// C can see _solution of B, (msg.sender & "Werapun") 
+// C submits commit() the same _solution of B with hiher gas cost to frontrun the transaction
+// C failed to reveal() even C submits the correct _solution() with "Werapun"
+//    since _solution of the previous hash in the commit stage is created with msg.sender
+// C cannot claim ETH, while B can
+
 contract SecuredHashFinder {
     
     struct Commit {
@@ -48,8 +58,8 @@ contract SecuredHashFinder {
     /*  
         Reveal the solution to get reward,
         however the previous commit solution, the hash (msg.sender & word) must be matchted.
-        even the frontrunner can be place transaction in advance, 
-        but it still failed of hash verification due to the msg.sender
+        even the frontrunner can be the placed transaction in advance, 
+        but it still gets hash verification failed due to the msg.sender
     */
 
     function reveal(string memory _solution)
@@ -65,6 +75,8 @@ contract SecuredHashFinder {
 
         bytes32 solutionHash =
             keccak256(abi.encodePacked(msg.sender, _solution));
+        
+        // The frontrunner will failed in this step due to the different msg.sender
         require(solutionHash == commit.solutionHash, "Hash doesn't match");
 
         require(
