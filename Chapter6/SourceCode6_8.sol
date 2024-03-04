@@ -1,55 +1,84 @@
-// SPDX-License-Identifier: MIT 
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-pragma solidity 0.8.20; 
-
-contract ProtectedAuction {
-    struct Bid {
-        bytes32 commitment;
-        uint amount;
+contract SecuredHashFinder {
+    
+    struct Commit {
+        bytes32 solutionHash;
+        uint256 commitTime; 
     }
 
-    mapping(address => Bid) public bids;
-    address public highestBidder;
-    uint public highestBid;
-    uint public revealEndTime;
-    bool public auctionEnded;
+    // Werapun
+    bytes32 public targetHash =
+        0x72b7f858dbb0ff500b25e340c20a8d5da685ab5d466fd031d0f7b876217e50d6; 
 
-    modifier onlyBeforeRevealEnd() {
-        require(block.timestamp < revealEndTime, "Reveal period has ended");
+    address public winner;
+
+    // Status of game
+    bool public ended;
+
+    // Mapping to store the commit details with address
+    mapping(address => Commit) commits;
+
+    // Modifier to check if the game is active
+    modifier gameActive() {
+        require(!ended, "Already ended");
         _;
     }
-
-    modifier onlyAfterRevealEnd() {
-        require(block.timestamp >= revealEndTime, "Reveal period has not ended");
-        _;
+ 
+    // deposit 10 ETH (msg.value) to SecuredHashFinder when deploying
+    constructor() payable {}
+ 
+    // the util function to find _solutionHash 
+    function attemptSolution(string memory word) public view returns (bytes32 ) { 
+        return keccak256(abi.encodePacked(msg.sender, word));
     }
 
-    function commitBid(bytes32 _commitment) public payable onlyBeforeRevealEnd {
-        require(bids[msg.sender].commitment == bytes32(0), "Bidder has already committed");
-        require(msg.value > 0, "Bid amount must be greater than 0");
-        bids[msg.sender] = Bid({
-            commitment: _commitment,
-            amount: msg.value
-        });
+    /* 
+       Commit function to store the calcalted hash from attemptSolution(msg.sender & solution).
+       Users can only commit once.
+    */
+    function commit(bytes32 _solution) public gameActive {
+        Commit storage commit = commits[msg.sender];
+        require(commit.commitTime == 0, "Already committed");
+        commit.solutionHash = _solution;
+        commit.commitTime = block.timestamp;
     }
+ 
+    /*  
+        Reveal the solution to get reward,
+        however the previous commit solution, the hash (msg.sender & word) must be matchted.
+        even the frontrunner can be place transaction in advance, 
+        but it still failed of hash verification due to the msg.sender
+    */
 
-    function revealBid(uint _secretNumber) public onlyAfterRevealEnd {
-        require(bids[msg.sender].commitment != bytes32(0), "Bidder has not committed");
-        bytes32 expectedCommitment = keccak256(abi.encode(_secretNumber));
-        require(bids[msg.sender].commitment == expectedCommitment, "Invalid secret number");
+    function reveal(string memory _solution)
+        public
+        gameActive
+    {
+        Commit storage commit = commits[msg.sender];
+        require(commit.commitTime != 0, "Not committed yet");
+        require(
+            commit.commitTime < block.timestamp,
+            "Cannot reveal in the same block"
+        ); 
 
-        uint bidAmount = bids[msg.sender].amount;
-        if (bidAmount > highestBid) {
-            highestBidder = msg.sender;
-            highestBid = bidAmount;
+        bytes32 solutionHash =
+            keccak256(abi.encodePacked(msg.sender, _solution));
+        require(solutionHash == commit.solutionHash, "Hash doesn't match");
+
+        require(
+            keccak256(abi.encodePacked(_solution)) == targetHash, "Incorrect answer"
+        );
+
+        winner = msg.sender;
+        ended = true;
+
+        (bool sent,) = payable(msg.sender).call{value: address(this).balance}("");
+        if (!sent) {
+            winner = address(0);
+            ended = false;
+            revert("Failed to send ether.");
         }
-
-        delete bids[msg.sender];
-    }
-
-    function endAuction() public onlyAfterRevealEnd {
-        require(!auctionEnded, "Auction has already ended");
-        auctionEnded = true;
-        // Perform actions based on the highest bidder and bid amount
     }
 }
