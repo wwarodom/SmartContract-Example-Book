@@ -49,10 +49,10 @@ contract SecuredHashFinder {
        Users can only commit once.
     */
     function commit(bytes32 _solution) public gameActive {
-        Commit storage commit = commits[msg.sender];
-        require(commit.commitTime == 0, "Already committed");
-        commit.solutionHash = _solution;
-        commit.commitTime = block.timestamp;
+        Commit storage commit1 = commits[msg.sender];
+        require(commit1.commitTime == 0, "Already committed");
+        commit1.solutionHash = _solution;
+        commit1.commitTime = block.timestamp;
     }
  
     /*  
@@ -66,10 +66,10 @@ contract SecuredHashFinder {
         public
         gameActive
     {
-        Commit storage commit = commits[msg.sender];
-        require(commit.commitTime != 0, "Not committed yet");
+        Commit storage commit2 = commits[msg.sender];
+        require(commit2.commitTime != 0, "Not committed yet");
         require(
-            commit.commitTime < block.timestamp,
+            commit2.commitTime < block.timestamp,
             "Cannot reveal in the same block"
         ); 
 
@@ -77,7 +77,7 @@ contract SecuredHashFinder {
             keccak256(abi.encodePacked(msg.sender, _solution));
         
         // The frontrunner will failed in this step due to the different msg.sender
-        require(solutionHash == commit.solutionHash, "Hash doesn't match");
+        require(solutionHash == commit2.solutionHash, "Hash doesn't match");
 
         require(
             keccak256(abi.encodePacked(_solution)) == targetHash, "Incorrect answer"
