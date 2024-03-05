@@ -42,3 +42,6 @@ contract FlashLoanArbitrage {
         tokenA.transferFrom(lendingPoolAddress, address(this), totalDebt);
     }
 }
+
+
+// Example: https://www.youtube.com/watch?v=26MVmX7zhbg&t=970s 
