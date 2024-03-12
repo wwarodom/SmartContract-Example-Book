@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 // B runs attemptSolution() with "Werapun" to get _solution
 // B submits commit() with _solution (msg.sender & "Werapun")
 // C can see _solution of B, (msg.sender & "Werapun") 
-// C submits commit() the same _solution of B with hiher gas cost to frontrun the transaction
+// C submits commit() the same _solution of B with higher gas cost to frontrun the transaction
 // C failed to reveal() even C submits the correct _solution() with "Werapun"
 //    since _solution of the previous hash in the commit stage is created with msg.sender
 // C cannot claim ETH, while B can
