@@ -24,10 +24,10 @@ contract UniswapV3FlashTest is Test {
         weth.approve(address(uni), 1e18);
 
         uint256 balBefore = weth.balanceOf(address(this));
-        console.log("Balance before flash:", balBefore/1e17); // 1 eth
+        console.log("Balance before flash:", balBefore/1e17); // 1 WETH before flashloan()
         uni.flash(0, 100 * 1e18);                            // borrow 0 USDC, 100 WETH
         uint256 balAfter = weth.balanceOf(address(this));
-        console.log("Balance after flash:", balAfter/1e17);  // 0.7 eth
+        console.log("Balance after flash:", balAfter/1e17);  // 0.7 WETH after flashloan()
 
         uint256 fee = balBefore - balAfter;
         console.log("WETH fee", fee/1e17);          // 0.3 eth
