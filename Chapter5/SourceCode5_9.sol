@@ -8,7 +8,7 @@ contract Uniswap01 {
         balances[msg.sender]["USDT"] = 3000 ether;
     }
     function swapTokens(uint256 amountIn, uint256 amountOut) public {        
-        balances[msg.sender]["ETH"] -= amountIn;
-        balances[msg.sender]["USDT"] += amountOut;
+        balances[msg.sender]["ETH"] += amountIn;
+        balances[msg.sender]["USDT"] -= amountOut;
     }
 }
