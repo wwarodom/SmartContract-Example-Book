@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Always input amount in wei (https://eth-converter.com/)
 // Simplified conversion rate: 1ETH  = 2 MTK 
+//    Deployed ERC20Token, then deploy UniswapLike(ERC20Token address)
 // 1. ERC20Token:   mint()        create 10 MTK to UniswapLike
 // 2. buyTokens 
 //    2.1 UniswapLike: buyTokens()  (msg.value: 1ETH) => 2 MTK
