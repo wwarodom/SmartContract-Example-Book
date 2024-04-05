@@ -34,6 +34,8 @@
 // 5. Check at openSea testnet 
 // NFT Art: https://testnets.opensea.io/collection/nft-4337
 
+// Web Frontend code: https://github.com/wwarodom/nft_example
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
