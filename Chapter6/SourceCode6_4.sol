@@ -14,7 +14,7 @@ contract Innocent {
     }    
 }
 
-// This contract can be hided in another file and not publicly available,
+// This contract can be hidden in another file and not publicly available,
 // Then a user cannot see how log() works.
 contract Mask {
     event Log(string message); 
